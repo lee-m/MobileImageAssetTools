@@ -1,4 +1,4 @@
-﻿//Copyright(c) 2019-2020 Lee Millward
+﻿//Copyright(c) 2019-2021 Lee Millward
 
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +18,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -28,7 +29,7 @@ namespace ImageAssetGenerator
 {
     public class iOSAssetGenerator
     {
-        private List<Density> _densities;
+        private readonly List<Density> _densities;
 
         private struct Density
         {
@@ -38,16 +39,18 @@ namespace ImageAssetGenerator
 
         public iOSAssetGenerator()
         {
-            _densities = new List<Density>()
+            _densities = new List<Density>
             {
-                new Density() { Suffix = "", Multiplier = 1 },
-                new Density() { Suffix = "@2x", Multiplier = 2 },
-                new Density() { Suffix = "@3x", Multiplier = 3 }
+                new Density { Suffix = "", Multiplier = 1 },
+                new Density { Suffix = "@2x", Multiplier = 2 },
+                new Density { Suffix = "@3x", Multiplier = 3 }
             };
         }
 
         public Task GenerateAssetAsync(string inputFile, string outputDirectory, int baseWidth, int baseHeight)
         {
+            Console.WriteLine($"Generating iOS image asset from {inputFile}");
+
             return Task.Run(() =>
             {
                 _densities.AsParallel().ForAll(density =>
@@ -58,7 +61,7 @@ namespace ImageAssetGenerator
                     //Output height may not be specified so leave it blank and let svgexport figure out a height for us based on the width
                     var outputHeight = baseHeight > 0 ? (baseHeight * density.Multiplier).ToString() : string.Empty;
 
-                    ProcessStartInfo svgExportParams = new ProcessStartInfo()
+                    ProcessStartInfo svgExportParams = new ProcessStartInfo
                     {
                         CreateNoWindow = true,
                         WorkingDirectory = Directory.GetCurrentDirectory(),
@@ -66,7 +69,8 @@ namespace ImageAssetGenerator
                         Arguments = $"{Path.Combine(inputFile)} {outputFile} {outputWidth}:{outputHeight}"
                     };
 
-                    Process.Start(svgExportParams).WaitForExit();
+                    var process = Process.Start(svgExportParams);
+                    process.WaitForExit();
                 });
             });
         }

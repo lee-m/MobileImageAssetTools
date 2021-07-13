@@ -1,4 +1,4 @@
-﻿//Copyright(c) 2019-2020 Lee Millward
+﻿//Copyright(c) 2019-2021 Lee Millward
 
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +30,14 @@ namespace ImageAssetGenerator
 {
     class Program
     {
-        private static string InputFileSwitch = "/input:";
-        private static string OutputDirectorySwitch = "/outputdirectory:";
-        private static string BaseWidthSwitch = "/basewidth:";
-        private static string BaseHeightSwitch = "/baseheight:";
-        private static string OptimiseSwitch = "/optimise";
-        private static string iOSSwitch = "/ios";
-        private static string AndroidSwitch = "/android";
-        static string TinifyKeySwitch = "/tinifykey:";
+        private static readonly string InputFileSwitch = "/input:";
+        private static readonly string OutputDirectorySwitch = "/outputdirectory:";
+        private static readonly string BaseWidthSwitch = "/basewidth:";
+        private static readonly string BaseHeightSwitch = "/baseheight:";
+        private static readonly string OptimiseSwitch = "/optimise";
+        private static readonly string iOSSwitch = "/ios";
+        private static readonly string AndroidSwitch = "/android";
+        private static readonly string TinifyKeySwitch = "/tinifykey:";
 
         static void Main(string[] args)
         {
@@ -99,6 +99,12 @@ namespace ImageAssetGenerator
                 Console.WriteLine($"One of {AndroidSwitch} or {iOSSwitch} must be specified");
                 return;
             }
+
+            if (iOS && !Directory.Exists(Path.Combine(outputDirectory, "iOS")))
+                Directory.CreateDirectory(Path.Combine(outputDirectory, "iOS"));
+
+            if (android && !Directory.Exists(Path.Combine(outputDirectory, "Android")))
+                Directory.CreateDirectory(Path.Combine(outputDirectory, "Android"));
 
             var platformTasks = new List<Task>();
 
